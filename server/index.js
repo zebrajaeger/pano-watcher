@@ -21,6 +21,16 @@ const updateInterval = (c.updateInterval)
 let panos = [];
 let changed = false;
 
+// ==================== helpers ====================
+function slugify(text) {
+    return text.toString().toLowerCase()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+        .replace(/^-+/, '')             // Trim - from start of text
+        .replace(/-+$/, '');            // Trim - from end of text
+}
+
 // ==================== http Server ====================
 const app = express();
 
@@ -59,7 +69,7 @@ function handleKrPano(request, response, next) {
     });
 }
 
-function handleKrPano(request, response, next) {
+function handleReload(request, response, next) {
     changed = true;
 }
 
@@ -106,7 +116,7 @@ function handlePreview(request, response, next) {
         return;
     }
 
-    let pathOriginal = c.panoRoot + `/${id}/${pano.preview}`;
+    let pathOriginal = c.panoRoot + `/${pano.path}/${pano.preview}`;
     let pathScaled = pathOriginal + `_preview(${previewSize}x${previewSize}).png`;
 
     if (!fs.existsSync(pathOriginal)) {
@@ -133,22 +143,20 @@ function handlePreview(request, response, next) {
             next(err);
         }
     });
-
-//response.send('Hello World');
 }
 
 // ==================== pano and dir parser ====================
 function findPano(id) {
     let result = null;
     panos.forEach(pano => {
-        if (pano.name === id) {
+        if (pano.id === id) {
             result = pano;
         }
     });
     return result;
 }
 
-function findPanoXml(dir) {
+function findPanoXml(dir, relPath) {
     let files = fs.readdirSync(dir).sort();
 
     for (let index in  files) {
@@ -159,7 +167,9 @@ function findPanoXml(dir) {
             let json = xml2json.toJson(xml, {object: true});
             if (json.krpano && json.krpano.preview && json.krpano.preview.url) {
                 return {
+                    id: slugify(relPath),
                     name: path.basename(dir),
+                    path: relPath,
                     panoFile: file,
                     preview: json.krpano.preview.url
                 }
@@ -193,13 +203,15 @@ function findDescriptionXml(dir) {
  * scan directories recursive
  * @param dir
  */
-function updatePanoList(dir) {
+let updatedList;
+
+function _updatePanoList(dir, relPath) {
     let files = fs.readdirSync(dir);
-    let updatedList = [];
     files.forEach(function (file) {
         let panoDir = path.join(dir, file);
         if (fs.statSync(panoDir).isDirectory()) {
-            let panoFile = findPanoXml(panoDir);
+            let newRelPath = relPath ? relPath + '/' + file : file;
+            let panoFile = findPanoXml(panoDir, newRelPath);
             if (panoFile) {
                 let description = findDescriptionXml(panoDir);
                 if (description) {
@@ -207,24 +219,32 @@ function updatePanoList(dir) {
                 }
                 updatedList.push(panoFile);
             } else {
-                updatePanoList(panoDir);
+                _updatePanoList(panoDir, newRelPath);
             }
         }
     });
+}
+
+function updatePanoList() {
+    updatedList = [];
+    _updatePanoList(c.panoRoot, null);
     panos = updatedList.sort();
 
-    console.log("===== UPDAT =====");
-    panos.forEach((pano,index) => console.log( index, pano.name));
+    console.log("===== UPDATE =====");
+    panos.forEach((pano, index) => console.log(index, pano.id, pano.path, pano.name));
 }
 
 // ==================== watcher ====================
-chokidar.watch(c.panoRoot, {ignored: /(^|[\/\\])\../}).on('all', () => {
-    changed = true;
-});
 
 setInterval(function () {
     if (changed) {
         changed = false;
-        updatePanoList(c.panoRoot);
+        updatePanoList();
     }
 }, updateInterval);
+
+updatePanoList();
+
+chokidar.watch(c.panoRoot, {ignored: /(^|[\/\\])\../}).on('all', () => {
+    changed = true;
+});

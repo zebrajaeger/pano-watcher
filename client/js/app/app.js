@@ -25,8 +25,10 @@ $(document).ready(function () {
                 })
             }
             $grid.append(
-                '<div id="pano-' + index + '" class="grid-item' + additionalClasses + '" data-pano-xml="/static/panos/' + pano.name + "/" + pano.panoFile + '">' +
-                '    <a href="#"><img class="preview" src="/api/panos/' + pano.name + '/preview"></a>' +
+                '<div id="pano-' + index + '" class="grid-item' + additionalClasses + '" data-pano-id="' + pano.id + '" data-pano-name="' + pano.name + '" data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '">' +
+                '    <a href="#">' +
+                '        <img class="preview" src="/api/panos/' + pano.id + '/preview">' +
+                '    </a>' +
                 '</div>')
         });
 
@@ -61,11 +63,11 @@ $(document).ready(function () {
         $('.overlay-popup').addClass("popup-open").fadeIn(400);
 
         $('#pano-wrapper').append('<div id="pano"></div>')
-        embedpano({xml: $(this).data('pano-xml'), target:'pano'})
+        embedpano({xml: $(this).data('pano-xml'), target: 'pano'})
     });
 
     $('html').on("click", "body.popup-open", function (e) {
-        if(e.target.nodeName=='BODY'){
+        if (e.target.nodeName == 'BODY') {
             removepano('pano');
             $("body").removeClass("popup-open")
             $(".overlay-popup").removeClass("popup-open");
