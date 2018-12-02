@@ -30,13 +30,16 @@ app.use('/static/panos', express.static(panoRoot))
 app.use('/', express.static('../client'))
 
 // api
+app.get('/api/panos/', handlePanos);
 app.get('/api/panos/:id', handlePano);
 app.get('/api/panos/:id/preview', handlePreview);
 app.get('/api/panos/:id/description', handleDescription);
-app.use('/api/panos', router);
 
 app.listen(port, () => console.log('Listening on port ' + port));
 
+function handlePanos(request, response, next) {
+    response.json(panos);
+}
 function handlePano(request, response, next) {
     let id = request.params.id;
     let pano = findPano(id);
