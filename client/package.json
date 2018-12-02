@@ -1,0 +1,27 @@
+{
+  "name": "node-watch-client",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "watch": "gulp",
+    "i": "yarn install"
+  },
+  "devDependencies": {
+    "browser-sync": "latest",
+    "gulp": "latest",
+    "gulp-clean": "latest",
+    "gulp-clean-css": "latest",
+    "gulp-concat": "latest",
+    "gulp-mode": "latest",
+    "gulp-plumber": "latest",
+    "gulp-rename": "latest",
+    "node-sass": "latest",
+    "gulp-sequence": "latest",
+    "gulp-sass": "latest",
+    "gulp-sourcemaps": "latest",
+    "gulp-uglify-es": "latest",
+    "run-sequence": "latest"
+  },
+  "dependencies": {
+  }
+}

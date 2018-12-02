@@ -1,5 +1,12 @@
 .idea
+
+# server
 server/node
 server/node_modules
+server/**/*_preview.png
 
-**/*_preview.png
+# client
+client/node
+client/node_modules
+client/build
+client/yarn-error.log
