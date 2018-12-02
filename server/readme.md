@@ -45,6 +45,8 @@ At first: enable modules
 
 change apache config, add i.E. following lines:
 
+    Redirect temp / https://home.zebrajaeger.de/panos/
+
     ProxyRequests on
     ProxyPass /static/panos/ http://localhost:3000/static/panos/
     ProxyPass /api/ http://localhost:3000/api/
