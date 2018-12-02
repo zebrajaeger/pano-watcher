@@ -12,6 +12,8 @@
     "gulp-clean": "latest",
     "gulp-clean-css": "latest",
     "gulp-concat": "latest",
+    "gulp-ext-replace": "latest",
+    "gulp-hb": "latest",
     "gulp-mode": "latest",
     "gulp-plumber": "latest",
     "gulp-rename": "latest",
@@ -20,6 +22,9 @@
     "gulp-sass": "latest",
     "gulp-sourcemaps": "latest",
     "gulp-uglify-es": "latest",
+    "handlebars-layouts": "latest",
+    "handlebars-helper-repeat": "latest",
+    "handlebars-helpers": "latest",
     "run-sequence": "latest"
   },
   "dependencies": {

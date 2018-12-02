@@ -1,0 +1,15 @@
+{{#extend "template" title="YO!"}}
+    {{#content "html"}}
+        <h1>Moin!</h1>
+        {{# repeat 5}}
+            XXX<br/>
+        {{/repeat}}
+    {{/content}}
+    {{#content "js"}}
+        <script>
+            $.getJSON('/api/panos/', function (data) {
+                console.log(data);
+            })
+        </script>
+    {{/content}}
+{{/extend}}

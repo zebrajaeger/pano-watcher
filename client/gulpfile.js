@@ -3,8 +3,8 @@ let g = require('gulp');
 let p = {};
 p.bs = require('browser-sync');
 p.clean = require('gulp-clean');
-p.cleanCss = require('gulp-clean-css');
 p.concat = require('gulp-concat');
+p.extReplace = require('gulp-ext-replace');
 p.mode = require('gulp-mode')({
     modes: ["prod", "dev"],
     default: "dev",
@@ -12,16 +12,35 @@ p.mode = require('gulp-mode')({
 });
 p.rename = require('gulp-rename');
 p.runSequence = require('run-sequence');
-p.sass = require('gulp-sass');
 p.plumber = require('gulp-plumber');
 p.sequence = require('gulp-sequence');
 p.sourcemaps = require('gulp-sourcemaps');
+
+// css
+p.cleanCss = require('gulp-clean-css');
+p.sass = require('gulp-sass');
+
+// js
 p.uglify = require('gulp-uglify-es').default;
+
+// html
+p.hb = require('gulp-hb');
+p.handlebars = require('handlebars');
+p.gulpHbHelpers = [
+    require('handlebars-helpers'),
+    require('handlebars-layouts')
+];
+p.hbHelpers = {
+    repeat: require('handlebars-helper-repeat')
+};
 //</editor-fold>
 
 //<editor-fold desc="CONFIG">
 let c = {
-    embedSourceMaps: false
+    embedSourceMaps: false,
+    html: {
+        debug: false
+    }
 };
 //</editor-fold>
 
@@ -48,9 +67,25 @@ g.task('clean', function () {
 
 //<editor-fold desc="TASKs(HTML)">
 g.task('html', function () {
+    // handlebars helper
+    for (helper in p.hbHelpers) {
+        p.handlebars.registerHelper(helper, p.hbHelpers[helper]);
+    }
+
+    let hb = p.hb({debug: c.html.debug})
+        .data('html/data/**/*.json')
+        .partials('html/partials/**/*.hbs');
+
+    // gulp-hb helpers
+    p.gulpHbHelpers.forEach(helper => hb.helpers(helper));
+
     return g
-        .src('html/*.html')
+        .src('html/*.hbs')
+
         .pipe(p.mode.dev(p.plumber()))
+
+        .pipe(hb)
+        .pipe(p.extReplace('.html'))
         .pipe(g.dest('build'));
 });
 //</editor-fold>
