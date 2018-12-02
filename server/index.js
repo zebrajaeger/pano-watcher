@@ -16,7 +16,8 @@ const previewQuality = (c.preview && c.preview.quality)
     : 90;
 const updateInterval = (c.updateInterval)
     ? c.updateInterval
-    : 10000;
+    : 1000;
+const autowatch  = c.autowatch || false;
 
 let panos = [];
 let changed = false;
@@ -69,8 +70,9 @@ function handleKrPano(request, response, next) {
     });
 }
 
-function handleReload(request, response, next) {
+function handleReload(request, response) {
     changed = true;
+    response.status(200).end();
 }
 
 function handlePanos(request, response) {
@@ -248,6 +250,8 @@ setInterval(function () {
 
 updatePanoList();
 
-chokidar.watch(c.panoRoot, {ignored: /(^|[\/\\])\../}).on('all', () => {
-    changed = true;
-});
+if(autowatch) {
+    chokidar.watch(c.panoRoot, {ignored: /(^|[\/\\])\../}).on('all', () => {
+        changed = true;
+    });
+}
