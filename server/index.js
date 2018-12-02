@@ -22,7 +22,7 @@ const app = express();
 
 // static stuff
 app.use('/static/panos', express.static(c.panoRoot));
-app.use('/', express.static('../client'));
+app.use('/', express.static('../client/build/'));
 
 app.get('/api/krpano/', handleKrPano);
 // api

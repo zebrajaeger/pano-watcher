@@ -1,7 +1,7 @@
 {
   "panoRoot": "D:/pano/",
   "port": 3000,
-  "preview":{
+  "preview": {
     "size": 222,
     "quality": 90
   }
