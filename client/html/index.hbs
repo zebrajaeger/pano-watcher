@@ -9,6 +9,15 @@ title: Hallo!
         </div>
 
         <div class="grid"></div>
+
+        <div class="overlay-popup">
+
+            ...popup content...
+
+            <!-- Add an optional button to close the popup -->
+            <button class="my_popup_close" onclick="$(this).popupClose();">Close</button>
+
+        </div>
     {{/content}}
     {{#content "js"}}
         <script>
@@ -18,7 +27,7 @@ title: Hallo!
                 let $filters = $('.filter-button-group');
 
                 let tags = {};
-                data.forEach(pano => {
+                data.forEach((pano, index) => {
                     let additionalClasses = '';
                     if (pano.meta.tags) {
                         pano.meta.tags.forEach(tag => {
@@ -27,7 +36,15 @@ title: Hallo!
                             additionalClasses += ' tag--' + x;
                         })
                     }
-                    $grid.append('<div class="grid-item' + additionalClasses + '"><a href="#"><img class="preview" src="/api/panos/' + pano.name + '/preview"></a></div>')
+                    $grid.append('<div id="pano-' + index +'" class="grid-item' + additionalClasses + '"><a href="#"><img class="preview" src="/api/panos/' + pano.name + '/preview"></a></div>')
+                });
+
+                $('.grid .grid-item a').on('click', function(e){
+                    e.preventDefault();
+                    $('#my_popup').popup({
+                        opacity: 0.3,
+                        transition: 'all 0.3s'
+                    });
                 });
 
                 for (tag in tags) {
