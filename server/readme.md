@@ -12,9 +12,20 @@
   * the unregistered version adds watermarks to the pano   
 * change the config to your pano root directory
 
-## Start 
+## Install Modules
 
+    npm run i
+or (is called implicit with the command above)
+
+    yarn install
+
+## Start Server
+    npm run server
+    
+or (is called implicit with the command above)  
+  
     node index.js
     
+## Start Client
 * start the client (see readme.md in client directory)
     

@@ -5,9 +5,15 @@ const path = require('path');
 const xml2json = require('xml2json');
 const jimp = require('jimp');
 
-const c = require('config.json');
+const c = require('./config.json');
 
 const port = c.port || 3000;
+const previewSize = (c.preview && c.preview.size)
+    ? c.preview.size
+    : 256;
+const previewQuality = (c.preview && c.preview.quality)
+    ? c.preview.quality
+    : 90;
 
 let panos = [];
 
@@ -92,7 +98,7 @@ function handlePreview(request, response, next) {
     }
 
     let pathOriginal = c.panoRoot + `/${id}/${pano.preview}`;
-    let pathScaled = pathOriginal + '_preview.png';
+    let pathScaled = pathOriginal + `_preview(${previewSize}x${previewSize}).png`;
 
     if (!fs.existsSync(pathOriginal)) {
         response.status(404).send('Preview not found');
@@ -103,8 +109,8 @@ function handlePreview(request, response, next) {
         jimp.read(pathOriginal)
             .then(img => {
                 return img
-                    .scaleToFit(256, 256)
-                    .quality(90)
+                    .scaleToFit(previewSize, previewSize)
+                    .quality(previewQuality)
                     .write(pathScaled);
             })
             .catch(err => {

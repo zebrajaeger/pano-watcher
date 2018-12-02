@@ -3,7 +3,7 @@
 # server
 server/node
 server/node_modules
-server/krpano.js
+server/krpano.js*
 server/**/*_preview.png
 
 # client
