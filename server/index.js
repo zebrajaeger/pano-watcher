@@ -125,6 +125,8 @@ function handlePreview(request, response, next) {
     }
 
     if (!fs.existsSync(pathScaled)) {
+        console.log("Scale Image", pathOriginal);
+
         jimp.read(pathOriginal)
             .then(img => {
                 return img
@@ -164,6 +166,7 @@ function findPanoXml(dir, relPath) {
         let x = path.join(dir, file);
         if (path.extname(file).toLowerCase() === '.xml') {
             let xml = fs.readFileSync(x);
+            //console.log(x)
             let json = xml2json.toJson(xml, {object: true});
             if (json.krpano && json.krpano.preview && json.krpano.preview.url) {
                 return {
