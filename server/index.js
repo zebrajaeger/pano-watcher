@@ -14,8 +14,12 @@ const previewSize = (c.preview && c.preview.size)
 const previewQuality = (c.preview && c.preview.quality)
     ? c.preview.quality
     : 90;
+const updateInterval = (c.updateInterval)
+    ? c.updateInterval
+    : 10000;
 
 let panos = [];
+let changed = false;
 
 // ==================== http Server ====================
 const app = express();
@@ -25,6 +29,7 @@ app.use('/static/panos', express.static(c.panoRoot));
 app.use('/', express.static('../client/build/'));
 
 app.get('/api/krpano/', handleKrPano);
+app.get('/api/reload/', handleReload);
 // api
 app.get('/api/panos/', handlePanos);
 app.get('/api/panos/:id', handlePano);
@@ -52,6 +57,10 @@ function handleKrPano(request, response, next) {
             next(err);
         }
     });
+}
+
+function handleKrPano(request, response, next) {
+    changed = true;
 }
 
 function handlePanos(request, response) {
@@ -203,12 +212,13 @@ function updatePanoList(dir) {
         }
     });
     panos = updatedList.sort();
-    //log(panos);
+
+    console.log("===== UPDAT =====");
+    panos.forEach((pano,index) => console.log( index, pano.name));
 }
 
 // ==================== watcher ====================
-let changed = false;
-chokidar.watch('.', {ignored: /(^|[\/\\])\../}).on('all', () => {
+chokidar.watch(c.panoRoot, {ignored: /(^|[\/\\])\../}).on('all', () => {
     changed = true;
 });
 
@@ -217,4 +227,4 @@ setInterval(function () {
         changed = false;
         updatePanoList(c.panoRoot);
     }
-}, 500);
+}, updateInterval);
