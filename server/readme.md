@@ -28,4 +28,24 @@ or (is called implicit with the command above)
     
 ## Start Client
 * start the client (see readme.md in client directory)
-    
+
+## Behind apache
+
+At first: enable modules
+
+    sudo a2enmod proxy
+    sudo a2enmod proxy_http
+    sudo a2enmod proxy_balancer
+    sudo a2enmod lbmethod_byrequests
+
+change apache config, add i.E. following lines:
+
+    ProxyRequests on
+    ProxyPass /static/panos/ http://localhost:3000/static/panos/
+    ProxyPass /api/ http://localhost:3000/api/
+    ProxyPass /panos http://localhost:3000/
+    ProxyPass /panos/ http://localhost:3000/
+
+restart apache
+
+    sudo service apache2 restart    
