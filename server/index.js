@@ -5,29 +5,20 @@ const path = require('path');
 const xml2json = require('xml2json');
 const jimp = require('jimp');
 
-const port = 3000;
-//const panoRoot = 'd:/pano';
-const panoRoot = 'panos';
+const c = require('config.json');
+
+const port = c.port || 3000;
 
 let panos = [];
-
-// ==================== helpers ====================
-
-function log(msg, ...parms) {
-    if (parms) {
-        console.log(msg, parms);
-    } else {
-        console.log(msg);
-    }
-}
 
 // ==================== http Server ====================
 const app = express();
 
 // static stuff
-app.use('/static/panos', express.static(panoRoot))
-app.use('/', express.static('../client'))
+app.use('/static/panos', express.static(c.panoRoot));
+app.use('/', express.static('../client'));
 
+app.get('/api/krpano/', handleKrPano);
 // api
 app.get('/api/panos/', handlePanos);
 app.get('/api/panos/:id', handlePano);
@@ -36,29 +27,48 @@ app.get('/api/panos/:id/meta', handleMeta);
 
 app.listen(port, () => console.log('Listening on port ' + port));
 
-function handlePanos(request, response, next) {
+function handleKrPano(request, response, next) {
+    if (!fs.existsSync('krpano.js')) {
+        response.status(404).send('krpano not found');
+        return;
+    }
+
+    let options = {
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+    let path = __dirname + '/krpano.js';
+    response.sendFile(path, options, function (err) {
+        if (err) {
+            next(err);
+        }
+    });
+}
+
+function handlePanos(request, response) {
     response.json(panos);
 }
-function handlePano(request, response, next) {
+
+function handlePano(request, response) {
     let id = request.params.id;
     let pano = findPano(id);
     if (pano == null) {
         response.status(404).send(`Pano with id: '${id}' not found`);
-        return;
     } else {
         response.json(pano);
     }
 }
 
-function handleMeta(request, response, next) {
+function handleMeta(request, response) {
     let id = request.params.id;
     let pano = findPano(id);
     if (pano == null) {
         response.status(404).send(`Pano with id: '${id}' not found`);
-        return;
     } else if (!pano.meta) {
         response.status(404).send(`Meta for pano with id: '${id}' not found`);
-        return;
     } else {
         response.json(pano.meta);
     }
@@ -81,7 +91,7 @@ function handlePreview(request, response, next) {
         return;
     }
 
-    let pathOriginal = __dirname + `/panos/${id}/${pano.preview}`;
+    let pathOriginal = c.panoRoot + `/${id}/${pano.preview}`;
     let pathScaled = pathOriginal + '_preview.png';
 
     if (!fs.existsSync(pathOriginal)) {
@@ -176,7 +186,7 @@ function updatePanoList(dir) {
         if (fs.statSync(panoDir).isDirectory()) {
             let panoFile = findPanoXml(panoDir);
             if (panoFile) {
-                let description = findDescriptionXml(panoDir)
+                let description = findDescriptionXml(panoDir);
                 if (description) {
                     panoFile.meta = description
                 }
@@ -192,13 +202,13 @@ function updatePanoList(dir) {
 
 // ==================== watcher ====================
 let changed = false;
-chokidar.watch('.', {ignored: /(^|[\/\\])\../}).on('all', (event, path) => {
+chokidar.watch('.', {ignored: /(^|[\/\\])\../}).on('all', () => {
     changed = true;
 });
 
 setInterval(function () {
     if (changed) {
         changed = false;
-        updatePanoList(panoRoot);
+        updatePanoList(c.panoRoot);
     }
 }, 500);

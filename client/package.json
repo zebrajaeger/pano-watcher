@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "watch": "gulp",
+    "build": "gulp --prod",
+    "develop": "gulp develop",
     "i": "yarn install"
   },
   "devDependencies": {

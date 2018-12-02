@@ -11,62 +11,7 @@ title: Hallo!
         <div class="grid"></div>
 
         <div class="overlay-popup">
-
-            ...popup content...
-
-            <!-- Add an optional button to close the popup -->
-            <button class="my_popup_close" onclick="$(this).popupClose();">Close</button>
-
+            <div id="pano-wrapper"></div>
         </div>
-    {{/content}}
-    {{#content "js"}}
-        <script>
-
-            $.getJSON('/api/panos/', function (data) {
-                let $grid = $('.grid');
-                let $filters = $('.filter-button-group');
-
-                let tags = {};
-                data.forEach((pano, index) => {
-                    let additionalClasses = '';
-                    if (pano.meta.tags) {
-                        pano.meta.tags.forEach(tag => {
-                            let x = slugify(tag);
-                            tags[x] = true;
-                            additionalClasses += ' tag--' + x;
-                        })
-                    }
-                    $grid.append('<div id="pano-' + index +'" class="grid-item' + additionalClasses + '"><a href="#"><img class="preview" src="/api/panos/' + pano.name + '/preview"></a></div>')
-                });
-
-                $('.grid .grid-item a').on('click', function(e){
-                    e.preventDefault();
-                    $('#my_popup').popup({
-                        opacity: 0.3,
-                        transition: 'all 0.3s'
-                    });
-                });
-
-                for (tag in tags) {
-                    // TODO sort items
-                    $filters.append('<button data-filter="' + tag + '">' + tag + '</button>');
-                }
-
-                $grid.isotope({
-                    itemSelector: '.grid-item',
-                    layoutMode: 'fitRows',
-                    masonry: {}
-                });
-
-                $('.filter-button-group').on('click', 'button', function () {
-                    let filterValue = $(this).attr('data-filter');
-                    if (filterValue == '*') {
-                        $grid.isotope({filter: '*'});
-                    } else {
-                        $grid.isotope({filter: '.tag--' + filterValue});
-                    }
-                });
-            })
-        </script>
     {{/content}}
 {{/extend}}

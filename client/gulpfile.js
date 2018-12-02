@@ -162,7 +162,7 @@ g.task('vendor-js', function () {
         .pipe(g.dest('build'))
 
         .pipe(p.mode.prod(p.uglify()))
-        .pipe(p.mode.prod(p.rename('app.min.js')))
+        .pipe(p.mode.prod(p.rename('vendor.min.js')))
         .pipe(p.mode.prod(c.embedSourceMaps
             ? p.sourcemaps.write()
             : p.sourcemaps.write('.')))

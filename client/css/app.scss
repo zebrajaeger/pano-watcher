@@ -41,13 +41,13 @@ body.popup-open:after {
 .overlay-popup {
   display: none;
   padding: 10px;
-  width: 300px;
-  height: 200px;
+  width: 50%;
+  height: 50%;
   position: fixed;
   top: 50%;
   left: 50%;
-  margin-top: -100px;
-  margin-left: -150px;
+  margin-top: -25%;
+  margin-left: -25%;
   background-color: #fff;
   border-radius: 5px;
   text-align: center;
