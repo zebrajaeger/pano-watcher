@@ -5,6 +5,7 @@ p.bs = require('browser-sync');
 p.clean = require('gulp-clean');
 p.concat = require('gulp-concat');
 p.extReplace = require('gulp-ext-replace');
+p.frontMatter = require('gulp-front-matter');
 p.mode = require('gulp-mode')({
     modes: ["prod", "dev"],
     default: "dev",
@@ -83,6 +84,7 @@ g.task('html', function () {
         .src('html/*.hbs')
 
         .pipe(p.mode.dev(p.plumber()))
+        .pipe(p.frontMatter({property: 'data.page'}))
 
         .pipe(hb)
         .pipe(p.extReplace('.html'))
@@ -190,19 +192,26 @@ g.task('watch', function () {
 
     p.bs.init(options);
 
+    // html
     p.bs.watch('html/**/*', function () {
         p.runSequence('html', 'bs-reload')
     });
 
-    p.bs.watch('css/app/**/*', function () {
-        p.runSequence('app-css') // is this enough?
-        //p.runSequence('app-css', 'bs-reload')
+    // css
+    p.bs.watch('css/app.scss', function () {
+        p.runSequence('app-css', 'bs-reload')
     });
-    p.bs.watch('css/vendor/**/*', function () {
-        p.runSequence('vendor-css') // is this enough?
-        //p.runSequence('app-css', 'bs-reload')
+    p.bs.watch('css/app/**/*', function () {
+        p.runSequence('app-css', 'bs-reload')
+    });
+    p.bs.watch('css/vendor.scss', function () {
+        p.runSequence('vendor-css', 'bs-reload')
+    });
+    p.bs.watch('vendor/app/**/*', function () {
+        p.runSequence('vendor-css', 'bs-reload')
     });
 
+    // js
     p.bs.watch('js/app/**/*', function () {
         p.runSequence('app-js', 'bs-reload')
     });

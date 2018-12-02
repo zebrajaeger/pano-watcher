@@ -1,14 +1,54 @@
-{{#extend "template" title="YO!"}}
+---
+title: Hallo!
+---
+{{#extend "template" title=page.title }}
     {{#content "html"}}
-        <h1>Moin!</h1>
-        {{# repeat 5}}
-            XXX<br/>
-        {{/repeat}}
+        <h2>Filter</h2>
+        <div id="filters" class="filter-button-group">
+            <button data-filter="*">show all</button>
+        </div>
+
+        <div class="grid"></div>
     {{/content}}
     {{#content "js"}}
         <script>
+
             $.getJSON('/api/panos/', function (data) {
-                console.log(data);
+                let $grid = $('.grid');
+                let $filters = $('.filter-button-group');
+
+                let tags = {};
+                data.forEach(pano => {
+                    let additionalClasses = '';
+                    if (pano.meta.tags) {
+                        pano.meta.tags.forEach(tag => {
+                            let x = slugify(tag);
+                            tags[x] = true;
+                            additionalClasses += ' tag--' + x;
+                        })
+                    }
+                    $grid.append('<div class="grid-item' + additionalClasses + '"><a href="#"><img class="preview" src="/api/panos/' + pano.name + '/preview"></a></div>')
+                });
+
+                for (tag in tags) {
+                    // TODO sort items
+                    $filters.append('<button data-filter="' + tag + '">' + tag + '</button>');
+                }
+
+                $grid.isotope({
+                    itemSelector: '.grid-item',
+                    layoutMode: 'fitRows',
+                    masonry: {}
+                });
+
+                $('.filter-button-group').on('click', 'button', function () {
+                    let filterValue = $(this).attr('data-filter');
+                    if (filterValue == '*') {
+                        $grid.isotope({filter: '*'});
+                    } else {
+                        $grid.isotope({filter: '.tag--' + filterValue});
+                    }
+                });
             })
         </script>
     {{/content}}

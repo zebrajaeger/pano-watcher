@@ -156,7 +156,8 @@ function findDescriptionXml(dir) {
                 return {
                     file: file,
                     title: json.description.title,
-                    text: json.description.text
+                    text: json.description.text,
+                    tags: json.description.tags.tag
                 }
             }
         }

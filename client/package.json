@@ -13,6 +13,7 @@
     "gulp-clean-css": "latest",
     "gulp-concat": "latest",
     "gulp-ext-replace": "latest",
+    "gulp-front-matter": "latest",
     "gulp-hb": "latest",
     "gulp-mode": "latest",
     "gulp-plumber": "latest",
