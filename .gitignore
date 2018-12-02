@@ -1,3 +1,5 @@
 .idea
 server/node
 server/node_modules
+
+**/*_preview.png

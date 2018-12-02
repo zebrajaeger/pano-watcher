@@ -10,6 +10,7 @@
     "xml2json": "^0.11.2"
   },
   "scripts": {
-    "test": "node index.js"
+    "test": "node index.js",
+    "i": "yarn install"
   }
 }

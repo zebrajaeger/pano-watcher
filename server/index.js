@@ -3,12 +3,13 @@ const fs = require('fs');
 const chokidar = require('chokidar');
 const path = require('path');
 const xml2json = require('xml2json');
+const jimp = require('jimp');
 
 const port = 3000;
-const panoRoot = 'd:/pano';
+//const panoRoot = 'd:/pano';
+const panoRoot = 'panos';
 
-
-let fileList = [];
+let panos = [];
 
 // ==================== helpers ====================
 
@@ -23,20 +24,103 @@ function log(msg, ...parms) {
 // ==================== http Server ====================
 const app = express();
 const router = express.Router();
-// app.get('/', function (request, response) {
-//     response.send('Hello World');
-// });
 
+// static stuff
+app.use('/static/panos', express.static(panoRoot))
 app.use('/', express.static('../client'))
-app.use('/panos', express.static(panoRoot))
-app.use('/api', router);
-router.get('/', (request, response) => {
-    response.json(fileList);
-});
+
+// api
+app.get('/api/panos/:id', handlePano);
+app.get('/api/panos/:id/preview', handlePreview);
+app.get('/api/panos/:id/description', handleDescription);
+app.use('/api/panos', router);
 
 app.listen(port, () => console.log('Listening on port ' + port));
 
+function handlePano(request, response, next) {
+    let id = request.params.id;
+    let pano = findPano(id);
+    if (pano == null) {
+        response.status(404).send(`Pano with id: '${id}' not found`);
+        return;
+    } else {
+        response.json(pano);
+    }
+}
+
+function handleDescription(request, response, next) {
+    let id = request.params.id;
+    let pano = findPano(id);
+    if (pano == null) {
+        response.status(404).send(`Pano with id: '${id}' not found`);
+        return;
+    } else if (!pano.description) {
+        response.status(404).send(`Decription for pano with id: '${id}' not found`);
+        return;
+    } else {
+        response.json(pano.description);
+    }
+}
+
+// ==================== PREVIEW ====================
+function handlePreview(request, response, next) {
+    let options = {
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+
+    let id = request.params.id;
+    let pano = findPano(id);
+    if (pano == null || !pano.preview) {
+        response.status(404).send(`Pano with id: '${id}' not found`);
+        return;
+    }
+
+    let pathOriginal = __dirname + `/panos/${id}/${pano.preview}`;
+    let pathScaled = pathOriginal + '_preview.png';
+
+    if (!fs.existsSync(pathOriginal)) {
+        response.status(404).send('Preview not found');
+        return;
+    }
+
+    if (!fs.existsSync(pathScaled)) {
+        jimp.read(pathOriginal)
+            .then(img => {
+                return img
+                    .scaleToFit(256, 256)
+                    .quality(90)
+                    .write(pathScaled);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    let result = fs.existsSync(pathScaled) ? pathScaled : pathOriginal;
+    response.sendFile(result, options, function (err) {
+        if (err) {
+            next(err);
+        }
+    });
+
+//response.send('Hello World');
+}
+
 // ==================== pano and dir parser ====================
+function findPano(id) {
+    let result = null;
+    panos.forEach(pano => {
+        if (pano.name === id) {
+            result = pano;
+        }
+    });
+    return result;
+}
+
 function findPanoXml(dir) {
     let files = fs.readdirSync(dir).sort();
 
@@ -57,22 +141,50 @@ function findPanoXml(dir) {
     }
 }
 
-function updateFileList(dir) {
+function findDescriptionXml(dir) {
+    let files = fs.readdirSync(dir).sort();
+
+    for (let index in  files) {
+        let file = files[index];
+        let x = path.join(dir, file);
+        if (path.extname(file).toLowerCase() === '.xml') {
+            let xml = fs.readFileSync(x);
+            let json = xml2json.toJson(xml, {object: true});
+            if (json.description) {
+                return {
+                    file: file,
+                    title: json.title,
+                    text: json.text
+                }
+            }
+        }
+    }
+}
+
+/**
+ * scan directories recursive
+ * @param dir
+ */
+function updatePanoList(dir) {
     let files = fs.readdirSync(dir);
     let updatedList = [];
     files.forEach(function (file) {
-        let x = path.join(dir, file);
-        if (fs.statSync(x).isDirectory()) {
-            var panoFile = findPanoXml(x);
+        let panoDir = path.join(dir, file);
+        if (fs.statSync(panoDir).isDirectory()) {
+            let panoFile = findPanoXml(panoDir);
             if (panoFile) {
+                let description = findDescriptionXml(panoDir)
+                if (description) {
+                    panoFile.description = description
+                }
                 updatedList.push(panoFile);
             } else {
-                updateFileList(x);
+                updatePanoList(panoDir);
             }
         }
     });
-    fileList = updatedList.sort();
-    //log(fileList);
+    panos = updatedList.sort();
+    //log(panos);
 }
 
 // ==================== watcher ====================
@@ -84,6 +196,6 @@ chokidar.watch('.', {ignored: /(^|[\/\\])\../}).on('all', (event, path) => {
 setInterval(function () {
     if (changed) {
         changed = false;
-        updateFileList(panoRoot);
+        updatePanoList(panoRoot);
     }
 }, 500);
