@@ -23,7 +23,6 @@ function log(msg, ...parms) {
 
 // ==================== http Server ====================
 const app = express();
-const router = express.Router();
 
 // static stuff
 app.use('/static/panos', express.static(panoRoot))
@@ -33,7 +32,7 @@ app.use('/', express.static('../client'))
 app.get('/api/panos/', handlePanos);
 app.get('/api/panos/:id', handlePano);
 app.get('/api/panos/:id/preview', handlePreview);
-app.get('/api/panos/:id/description', handleDescription);
+app.get('/api/panos/:id/meta', handleMeta);
 
 app.listen(port, () => console.log('Listening on port ' + port));
 
@@ -51,17 +50,17 @@ function handlePano(request, response, next) {
     }
 }
 
-function handleDescription(request, response, next) {
+function handleMeta(request, response, next) {
     let id = request.params.id;
     let pano = findPano(id);
     if (pano == null) {
         response.status(404).send(`Pano with id: '${id}' not found`);
         return;
-    } else if (!pano.description) {
-        response.status(404).send(`Decription for pano with id: '${id}' not found`);
+    } else if (!pano.meta) {
+        response.status(404).send(`Meta for pano with id: '${id}' not found`);
         return;
     } else {
-        response.json(pano.description);
+        response.json(pano.meta);
     }
 }
 
@@ -156,8 +155,8 @@ function findDescriptionXml(dir) {
             if (json.description) {
                 return {
                     file: file,
-                    title: json.title,
-                    text: json.text
+                    title: json.description.title,
+                    text: json.description.text
                 }
             }
         }
@@ -178,7 +177,7 @@ function updatePanoList(dir) {
             if (panoFile) {
                 let description = findDescriptionXml(panoDir)
                 if (description) {
-                    panoFile.description = description
+                    panoFile.meta = description
                 }
                 updatedList.push(panoFile);
             } else {
