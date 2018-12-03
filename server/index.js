@@ -142,6 +142,11 @@ function handlePreview(request, response, next) {
     }
 
     let result = fs.existsSync(pathScaled) ? pathScaled : pathOriginal;
+    if(!path.isAbsolute(result)){
+        result = __dirname + '/' + result;
+    }
+    result = path.normalize(result);
+
     response.sendFile(result, options, function (err) {
         if (err) {
             next(err);

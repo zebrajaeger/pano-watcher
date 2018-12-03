@@ -4,7 +4,8 @@
 server/node
 server/node_modules
 server/krpano.js*
-server/**/*_preview.png
+server/config.json
+server/**/*_preview*.png
 
 # client
 client/node

@@ -1,5 +1,5 @@
 {
-  "panoRoot": "D:/pano/",
+  "panoRoot": "./panos/",
   "port": 3000,
   "preview": {
     "size": 222,
