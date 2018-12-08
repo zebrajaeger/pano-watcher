@@ -27,7 +27,7 @@ let preview = function (_options) {
         return fs.existsSync(scaledPath) ? scaledPath : defaultPath;
     };
 
-    this.create = function (originalPath, targetPath, sizes) {
+    this.create = function (originalPath, targetPath, sizes, cb) {
         if (!Array.isArray(sizes)) {
             sizes = [sizes];
         }
@@ -39,15 +39,21 @@ let preview = function (_options) {
                 // TODO this is async, isn't it? If yes, we occupy all threads in node threadpool!!
                 jimp.read(originalPath)
                     .then(img => {
-                        let result =  img
+                        let result = img
                             .scaleToFit(size, size)
                             .quality(this.options.previewQuality)
                             .write(scaledPath);
                         console.log("preview created: " + scaledPath);
+                        if (cb) {
+                            cb(null, result);
+                        }
                         return result;
                     })
                     .catch(err => {
                         console.error(err);
+                        if (cb) {
+                            cb(err, null);
+                        }
                     });
             }
         });

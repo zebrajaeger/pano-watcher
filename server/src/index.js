@@ -14,12 +14,14 @@ const workingDirectory = path.join(__dirname, '..');
 const c = require('../config.json');
 const port = c.port || 3000;
 const updateInterval = (c.updateInterval) ? c.updateInterval : 1000;
-let previewSizes = c.previewSizes || [100, 150, 200, 250, 300];
+const previewSizes = c.previewSizes || [100, 150, 200, 250, 300];
+const placeholder = c.placeholder || 'placeholder.png';
 
 // global variables
 let panos = [];
 let changed = false;
 const app = express();
+const placeholderPath = path.join(workingDirectory, placeholder);
 
 // ==================== http Server ====================
 
@@ -38,26 +40,33 @@ app.get('/api/panos/:id/meta', handleMeta);
 
 app.listen(port, () => console.log('Listening on port ' + port));
 
-function handleKrPano(request, response, next) {
-    if (!fs.existsSync('krpano.js')) {
-        response.status(404).send('krpano not found');
-        return;
-    }
-
-    let options = {
+// ------------- Helpers -------------
+function createSendFileOptions() {
+    return {
         dotfiles: 'deny',
         headers: {
             'x-timestamp': Date.now(),
             'x-sent': true
         }
     };
+}
 
-    let path = path.join(workingDirectory, 'krpano.js');
-    response.sendFile(path, options, function (err) {
-        if (err) {
-            next(err);
-        }
-    });
+function sendFileOr404(path, response, next) {
+    if (fs.existsSync(path)) {
+        response.sendFile(path, createSendFileOptions(), function (err) {
+            if (err) {
+                next(err);
+            }
+        });
+    } else {
+        response.status(404).send('Original preview not found');
+    }
+}
+
+// ------------- Handlers -------------
+function handleKrPano(request, response, next) {
+    let krPanoPath = path.join(workingDirectory, 'krpano.js');
+    sendFileOr404(krPanoPath, response, next);
 }
 
 function handleReload(request, response) {
@@ -92,37 +101,24 @@ function handleMeta(request, response) {
 }
 
 function handlePreview(request, response, next, id, size) {
-    let options = {
-        dotfiles: 'deny',
-        headers: {
-            'x-timestamp': Date.now(),
-            'x-sent': true
-        }
-    };
-
     let pano = findPano(id);
-    if (pano == null || !pano.preview) {
+    if (!pano || !pano.preview) {
         response.status(404).send(`Pano with id: '${id}' not found`);
         return;
     }
 
-    let originalPath = path.join(workingDirectory, c.panoRoot, pano.path, pano.preview);
-    if (!fs.existsSync(originalPath)) {
-        response.status(404).send('Original preview not found');
+    let previewPath = path.join(workingDirectory, c.panoRoot, pano.path, pano.preview);
+    if (!fs.existsSync(previewPath)) {
+        sendFileOr404(placeholderPath, response, next);
         return;
     }
 
     let targetPath = path.join(workingDirectory, c.panoRoot, pano.path);
-    let previewPath = preview.get(targetPath, size);
-
-    if (previewPath) {
-        response.sendFile(previewPath, options, function (err) {
-            if (err) {
-                next(err);
-            }
-        });
+    let scaledPreviewPath = preview.get(targetPath, size);
+    if (scaledPreviewPath) {
+        sendFileOr404(scaledPreviewPath, response, next);
     } else {
-        response.status(404).send('Scaled preview not (maybe yet) found');
+        sendFileOr404(placeholderPath, response, next);
     }
 }
 
