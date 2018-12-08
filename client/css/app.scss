@@ -1,7 +1,7 @@
 .grid {
   width: 80%;
   background-color: #DDD;
-  margin:auto;
+  margin: auto;
 
   .grid-item {
     height: 100px;
@@ -13,10 +13,14 @@
     background-color: #AAA;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
     margin: 10px;
+
     a {
+      display: flex;
+
       .preview {
         max-height: 100px;
         max-width: 100px;
+        margin: auto;
       }
     }
   }

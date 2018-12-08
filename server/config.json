@@ -1,8 +1,5 @@
 {
-  "panoRoot": "D:/pano/",
-  "port": 3000,
-  "preview": {
-    "size": 222,
-    "quality": 90
-  }
+  "panoRootX": "D:/!pano/",
+  "panoRoot": ".",
+  "port": 3000
 }

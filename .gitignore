@@ -5,6 +5,8 @@ server/node
 server/node_modules
 server/krpano.js*
 server/**/*_preview.png
+server/**/_preview(*.png
+server/**/.preview(*.png
 
 # client
 client/node
