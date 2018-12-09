@@ -1,0 +1,10 @@
+.header {
+  position: relative;
+  overflow: hidden;
+
+  &__image {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

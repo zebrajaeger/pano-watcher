@@ -25,7 +25,7 @@ $(document).ready(function () {
                 })
             }
             $grid.append(
-                '<div id="pano-' + index + '" class="grid-item' + additionalClasses + '" data-pano-id="' + pano.id + '" data-pano-name="' + pano.name + '" data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '">' +
+                '<div id="pano-' + index + '" class="grid__item' + additionalClasses + '" data-pano-id="' + pano.id + '" data-pano-name="' + pano.name + '" data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '">' +
                 '    <a href="#">' +
                 '        <img class="preview" src="/api/panos/' + pano.id + '/preview">' +
                 '    </a>' +
@@ -50,7 +50,7 @@ $(document).ready(function () {
 
         // gallery items
         $grid.isotope({
-            itemSelector: '.grid-item',
+            itemSelector: '.grid__item',
             layoutMode: 'fitRows',
             masonry: {}
         });
@@ -58,7 +58,7 @@ $(document).ready(function () {
     });
 
     // popup open
-    $("body").on("click", ".grid-item", function () {
+    $("body").on("click", ".grid__item", function () {
         $("body").addClass("popup-open").fadeIn(2000);
         $('.overlay-popup').addClass("popup-open").fadeIn(400);
 

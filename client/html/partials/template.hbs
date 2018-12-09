@@ -4,10 +4,12 @@
     <meta name="viewport" content="width=device-width">
     {{> css}}
 </head>
-<body>
+<body class="body">
+<div class="body__wrapper">
     {{#block "html"}}{{/block}}
     {{> js}}
 
     {{#block "js"}}{{/block}}
+</div>
 </body>
 </html>
