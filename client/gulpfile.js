@@ -1,10 +1,16 @@
 //<editor-fold desc="GULP + PLUGINS">
 let g = require('gulp');
 let p = {};
+
+// node
+const path = require('path');
+
+// common
 p.bs = require('browser-sync');
 p.clean = require('gulp-clean');
 p.concat = require('gulp-concat');
 p.extReplace = require('gulp-ext-replace');
+p.flatMap = require('flat-map').default
 p.frontMatter = require('gulp-front-matter');
 p.mode = require('gulp-mode')({
     modes: ["prod", "dev"],
@@ -12,10 +18,13 @@ p.mode = require('gulp-mode')({
     verbose: false
 });
 p.rename = require('gulp-rename');
-p.runSequence = require('run-sequence');
 p.plumber = require('gulp-plumber');
+p.runSequence = require('run-sequence');
 p.sequence = require('gulp-sequence');
 p.sourcemaps = require('gulp-sourcemaps');
+
+// image
+p.scaleImages = require('gulp-scale-images')
 
 // css
 p.cleanCss = require('gulp-clean-css');
@@ -41,6 +50,9 @@ let c = {
     embedSourceMaps: false,
     html: {
         debug: false
+    },
+    image: {
+        widths: [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
     }
 };
 //</editor-fold>
@@ -48,7 +60,7 @@ let c = {
 //<editor-fold desc="TASKS-COLLECTIONS)">
 let t = {
     cleanAll: ['clean'],
-    buildAll: ['html', 'app-css', 'vendor-css', 'app-js', 'vendor-js'],
+    buildAll: ['asset', 'image', 'html', 'app-css', 'vendor-css', 'app-js', 'vendor-js'],
     buildHtml: ['app-css', 'vendor-css'],
     buildCss: ['app-css', 'vendor-css'],
     buildJs: ['app-js', 'vendor-js'],
@@ -63,6 +75,39 @@ g.task('clean', function () {
         .src('build', {read: false})
         .pipe(p.mode.dev(p.plumber()))
         .pipe(p.clean({force: true}))
+});
+//</editor-fold>
+
+//<editor-fold desc="TASKs(ASSTS)">
+g.task('asset', function () {
+    return g.src('asset/**/*')
+        .pipe(g.dest('build'));
+});
+//</editor-fold>
+
+//<editor-fold desc="TASKs(IMAGE)">
+const multibleVariantsPerFile = (file, cb) => {
+    let result = [];
+    let widths = c.image.widths;
+    for (let width of widths) {
+        let newFile = file.clone();
+        newFile.scale = {maxWidth: width, format: 'jpeg'};
+        result.push(newFile);
+    }
+    cb(null, result)
+};
+
+const computeFileName = (output, scale, cb) => {
+    let parsedPath = path.parse(output.path);
+    cb(null, parsedPath.name + '(' + scale.maxWidth + ').' + scale.format)
+};
+
+g.task('image', function () {
+    return g
+        .src('image/*.{jpeg,jpg,png,gif}')
+        .pipe(p.flatMap(multibleVariantsPerFile))
+        .pipe(p.scaleImages(computeFileName))
+        .pipe(g.dest('build/img'));
 });
 //</editor-fold>
 
@@ -191,6 +236,11 @@ g.task('watch', function () {
     };
 
     p.bs.init(options);
+
+    // asset
+    p.bs.watch('asset/**/*', function () {
+        p.runSequence('asset', 'bs-reload')
+    });
 
     // html
     p.bs.watch('html/**/*', function () {

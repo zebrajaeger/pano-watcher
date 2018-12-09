@@ -1,8 +1,14 @@
 ---
-title: Hallo!
+title: Testpage
+headerImg: head2
 ---
 {{#extend "template" title=page.title }}
     {{#content "html"}}
+
+        <div class="head">
+            {{> header-image img=page.headerImg}}
+        </div>
+
         <h2>Filter</h2>
         <div id="filters" class="filter-button-group">
             <button data-filter="*">show all</button>

@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "browser-sync": "latest",
+    "flat-map": "latest",
     "gulp": "latest",
     "gulp-clean": "latest",
     "gulp-clean-css": "latest",
@@ -21,6 +22,7 @@
     "gulp-plumber": "latest",
     "gulp-rename": "latest",
     "node-sass": "latest",
+    "gulp-scale-images": "latest",
     "gulp-scss-lint": "latest",
     "gulp-sequence": "latest",
     "gulp-sass": "latest",
