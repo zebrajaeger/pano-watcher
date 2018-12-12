@@ -1,3 +1,6 @@
+// fix warning issue, see https://github.com/sun-zheng-an/gulp-shell/issues/23
+require('events').EventEmitter.prototype._maxListeners = 100;
+
 //<editor-fold desc="GULP + PLUGINS">
 let g = require('gulp');
 let p = {};
