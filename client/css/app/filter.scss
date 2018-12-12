@@ -2,16 +2,14 @@
   height: auto;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
 
-  &__wrapper {
+  &__button {
     display: inline-block;
     min-width: 100px;
-    height: 25px;
     text-align: center;
     background-color: #AAA;
     margin-right: 1px;
     cursor: pointer;
-    padding: 5px;
-    line-height: 25px;
+    line-height: 30px;
 
     &:last-child {
       margin-right: 0;

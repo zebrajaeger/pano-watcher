@@ -65,33 +65,28 @@ gallery.addPanos = function (data) {
 gallery.addFilterButtons = function (tags) {
     let $f = gallery.$filter;
 
-    function createA(css, filter, label, active) {
-        let a = '<a'
-            + ' class="filter__button ' + css + '"'
-            + ' data-filter="' + filter + '">'
+    function createDiv(css, filter, label, active) {
+        return '<div '
+            + ' class="filter__button ' + css + (active ? ' is-active' : '') + '"'
+            + ' data-filter="' + filter + '"'
+            + '>'
             + label
-            + '</a>';
-
-        let div = '<div class="filter__wrapper' + (active ? ' is-active' : '') + '">'
-            + a
             + '</div>';
-
-        return div;
     }
 
-    $f.append(createA('filter__button--all', '*', 'All',true));
+    $f.append(createDiv('filter__button--all', '*', 'All', true));
 
     // TODO sort items
     for (let tag in tags) {
-        $f.append(createA('filter__button--tag', tag, tag,false));
+        $f.append(createDiv('filter__button--tag', tag, tag, false));
     }
 
+    // 'togglebutton'
     $('.filter__button').each(function (i, filterButton) {
         let $filterButton = $(filterButton);
         $filterButton.on('click', function () {
-            console.log(this)
             $f.find('.is-active').removeClass('is-active');
-            $(this).parent().addClass('is-active');
+            $(this).addClass('is-active');
         });
     });
 };
