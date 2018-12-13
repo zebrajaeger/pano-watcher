@@ -1,7 +1,8 @@
 let gallery = {};
 
 gallery.$gallery = $('.gallery');
-gallery.$filter = $('.filter');
+gallery.$filter = $('.filter-tag');
+gallery.$filterDate = $('.filter-date');
 
 gallery.requestPanosFromServer = function (cb) {
     $.getJSON('/api/panos/', function (data) {
@@ -17,18 +18,63 @@ gallery.addPanos = function (data) {
     let $g = gallery.$gallery;
     let tags = {};
 
+    let years = {};
+    let months = {};
+    let days = {};
+    let dates = {};
+
     data.forEach((pano, index) => {
         let additionalClasses = '';
-        if (pano.meta && pano.meta.tags) {
-            pano.meta.tags.forEach(tag => {
-                let slugifiedTag = utils.slugify(tag);
-                if (tags[slugifiedTag]) {
-                    ++tags[slugifiedTag];
+
+        let date;
+        if (pano.meta) {
+            if (pano.meta.tags) {
+                pano.meta.tags.forEach(tag => {
+                    let slugifiedTag = utils.slugify(tag);
+                    if (tags[slugifiedTag]) {
+                        ++tags[slugifiedTag];
+                    } else {
+                        tags[slugifiedTag] = 1;
+                    }
+                    additionalClasses += ' tag--' + slugifiedTag;
+                })
+            }
+
+            let created = pano.meta.created;
+            if (pano.meta.created) {
+                date = new Date(created)
+                let year = date.getFullYear();
+                let month = date.getMonth();
+                let day = date.getDay();
+
+                if (years[year]) {
+                    years[year]++;
                 } else {
-                    tags[slugifiedTag] = 1;
+                    years[year] = 1;
                 }
-                additionalClasses += ' tag--' + slugifiedTag;
-            })
+
+                if (months[month]) {
+                    months[month]++;
+                } else {
+                    months[month] = 1;
+                }
+
+                if (days[day]) {
+                    days[day]++;
+                } else {
+                    days[day] = 1;
+                }
+
+                if (dates[date]) {
+                    dates[date]++;
+                } else {
+                    dates[date] = 1;
+                }
+
+                additionalClasses += ' created__year--' + year;
+                additionalClasses += ' created__month--' + month;
+                additionalClasses += ' created__day--' + day;
+            }
         }
 
         let imgElement
@@ -48,6 +94,7 @@ gallery.addPanos = function (data) {
             + ' class="grid__item' + additionalClasses + '"'
             + ' data-pano-id="' + pano.id + '"'
             + ' data-pano-name="' + pano.name + '"'
+            + (date ? ' data-pano-created="' + date.toISOString() + '"' : '')
             + ' data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '">'
             + linkElement
             + '</div>';
@@ -55,7 +102,15 @@ gallery.addPanos = function (data) {
         $g.append(divElement);
     });
 
-    return tags;
+    return {
+        tags: tags,
+        created: {
+            years: years,
+            months: months,
+            days: days,
+            dates: dates
+        }
+    };
 };
 
 /**
@@ -91,6 +146,40 @@ gallery.addFilterButtons = function (tags) {
     });
 };
 
+/**
+ *
+ * @param tags map[<tagname> -> count]
+ */
+gallery.addDateFilterButtons = function (created) {
+    let $f = gallery.$filterDate;
+
+    function createDiv(css, filter, label, active) {
+        return '<div '
+            + ' class="filter__button ' + css + (active ? ' is-active' : '') + '"'
+            + ' data-filter="' + filter + '"'
+            + '>'
+            + label
+            + '</div>';
+    }
+
+    $f.append(createDiv('filter__button--all', '*', 'All', true));
+
+    // TODO sort items
+    for (let year in created.years) {
+        console.log("SSS", created)
+        $f.append(createDiv('filter__button--date', year, year, false));
+    }
+
+    // 'togglebutton'
+    // $('.filter__button').each(function (i, filterButton) {
+    //     let $filterButton = $(filterButton);
+    //     $filterButton.on('click', function () {
+    //         $f.find('.is-active').removeClass('is-active');
+    //         $(this).addClass('is-active');
+    //     });
+    // });
+};
+
 gallery.initIsotope = function () {
     let $g = gallery.$gallery;
     let $f = gallery.$filter;
@@ -113,8 +202,9 @@ gallery.initIsotope = function () {
 
 gallery.init = function () {
     gallery.requestPanosFromServer(function (data) {
-        let tags = gallery.addPanos(data);
-        gallery.addFilterButtons(tags);
+        let result = gallery.addPanos(data);
+        gallery.addFilterButtons(result.tags);
+        gallery.addDateFilterButtons(result.created);
         gallery.initIsotope();
     });
 };
