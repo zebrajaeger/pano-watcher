@@ -60,7 +60,8 @@ let pano = function (_options) {
                         file: file,
                         title: json.description.title,
                         text: json.description.text,
-                        tags: json.description.tags.tag
+                        tags: json.description.tags.tag,
+                        created: json.description.created
                     }
                 }
             }

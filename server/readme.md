@@ -55,4 +55,20 @@ change apache config, add i.E. following lines:
 
 restart apache
 
-    sudo service apache2 restart    
+    sudo service apache2 restart
+    
+# Prepare Panos
+
+## Descripion
+
+description.xml in pano root with content like this:
+
+    <description>
+        <title>Test Pano 1</title>
+        <text>This is the test-pano 1</text>
+        <tags>
+            <tag>aaa</tag>
+            <tag>bbb</tag>
+            <tag>xxx</tag>
+        </tags>
+    </description>
