@@ -1,7 +1,51 @@
-.grid {
-  background-color: #DDD;
+.gallery {
   margin: 20px;
   padding: 20px;
+  display:flex;
+
+  &__control {
+    height: auto;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+
+    &__group {
+      margin-bottom: 2px;
+    }
+
+    &--sort {
+
+    }
+
+    &--filter-tag {
+
+    }
+
+    &--filter-date {
+
+    }
+  }
+
+  &-button {
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+    background-color: #AAA;
+    margin-right: 1px;
+    cursor: pointer;
+    line-height: 30px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &.is-active {
+      background-color: #CCC;
+    }
+
+    &:hover {
+      color: white;
+      background-color: #000;
+    }
+  }
 
   &__item {
     height: 100px;

@@ -3,7 +3,7 @@ let popup = {};
 
 popup.init = function(){
     // popup open
-    $("body").on("click", ".grid__item", function () {
+    $("body").on("click", ".gallery__item", function () {
         $("body").addClass("popup-open").fadeIn(2000);
         $('.overlay-popup').addClass("popup-open").fadeIn(400);
 
