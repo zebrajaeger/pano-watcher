@@ -79,7 +79,7 @@ gallery.addPanos = function (data) {
         }
 
         let imgElement
-            = '<img '
+            = '<img'
             + ' class="preview"'
             + ' src="/api/panos/' + pano.id + '/preview"'
             + ' alt="' + pano.name + '"'
@@ -90,13 +90,22 @@ gallery.addPanos = function (data) {
             + imgElement
             + '</a>';
 
+        let dataElement
+            = '<div'
+            + ' class="gallery__item__data"';
+        if (date) {
+            dataElement += ' data-created-date="' + date.toISOString() + '"'
+            dataElement += ' data-created-year="' + date.getFullYear() + '"'
+        }
+        dataElement += '></div>';
+
         let divElement
             = '<div id="pano-' + index + '"'
             + ' class="gallery__item' + additionalClasses + '"'
             + ' data-pano-id="' + pano.id + '"'
             + ' data-pano-name="' + pano.name + '"'
-            + (date ? ' data-pano-created="' + date.toISOString() + '"' : '')
             + ' data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '">'
+            + dataElement
             + linkElement
             + '</div>';
 
@@ -127,7 +136,9 @@ gallery.addSortButtonsForDate = function () {
     }
 
     $s.append(createDiv('*', 'Natural', true));
-    $s.append(createDiv( '[data-pano-created]', 'Date', false));
+    $s.append(createDiv('panoName', 'Name', false));
+    $s.append(createDiv('created', 'New first', false));
+    $s.append(createDiv('createdI', 'Old first', false));
 
     // 'togglebutton'
     $('.gallery-button--sort-date').each(function (i, sortButton) {
@@ -192,7 +203,7 @@ gallery.addFilterButtonsForDate = function (created) {
 
     // TODO sort items
     for (let year in created.years) {
-        $f.append(createDiv( year, year, false));
+        $f.append(createDiv(year, year, false));
     }
 
     // 'togglebutton'
@@ -231,7 +242,6 @@ gallery.initIsotope = function () {
     gallery.$filterDate.on('click', '.gallery-button--filter-date', function () {
         let filterValue = $(this).attr('data-filter');
         console.log("DATE", filterValue)
-            console.log("YYY", '.created__year--' + filterValue)
         if (filterValue === '*') {
             $g.isotope({filter: '*'});
         } else {
@@ -242,6 +252,19 @@ gallery.initIsotope = function () {
     $g.isotope({
         itemSelector: '.gallery__item',
         layoutMode: 'fitRows',
+        getSortData: {
+            panoName: function (itemElem ) {
+                return  $( itemElem ).data('pano-name');
+            },
+            created: function (itemElem ) {
+                let value =  $( itemElem ).find('.gallery__item__data').data('created-date');
+                return value ? Date.parse(value) : 99999999999999;
+            },
+            createdI: function (itemElem ) {
+                let value =  $( itemElem ).find('.gallery__item__data').data('created-date');
+                return value ? -Date.parse(value) : 99999999999999;
+            }
+        },
         masonry: {}
     });
 };

@@ -58,6 +58,10 @@
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
     margin: 10px;
 
+    &__data {
+      display:none;
+    }
+
     a {
       display: flex;
 
