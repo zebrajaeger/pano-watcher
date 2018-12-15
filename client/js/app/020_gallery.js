@@ -12,6 +12,71 @@ gallery.requestPanosFromServer = function (cb) {
     });
 };
 
+gallery.createPanoElement = function (index, pano, date, panoTags) {
+    // img-preview
+    let imgElement
+        = '<img'
+        + ' class="gallery__item__preview__image"'
+        + ' src="/api/panos/' + pano.id + '/preview"'
+        + ' alt="' + pano.name + '"'
+        + '>';
+
+    // a-link & wrapper
+    let imgLink
+        = '<a href="#" class="gallery__item__preview__link">'
+        + imgElement
+        + '</a>';
+
+    let imgWrapper
+        = '<div class="gallery__item__preview">'
+        + imgLink
+        + '</div>';
+
+    // div-Data
+    let dataElement
+        = '<div'
+        + ' class="gallery__item__data"'
+        + ' data-name="' + pano.name + '"'
+        + ' data-id="' + pano.id + '"'
+        + ' data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '"';
+    if (date) {
+        dataElement += ' data-created-timestamp="' + date.valueOf() + '"';
+        dataElement += ' data-created-date="' + date.toISOString() + '"';
+        dataElement += ' data-created-year="' + date.getFullYear() + '"';
+        dataElement += ' data-created-month="' + date.getMonth() + '"';
+        dataElement += ' data-created-day="' + date.getDay() + '"';
+    } else {
+        dataElement += ' data-created-year="-666"'
+    }
+    if (pano.meta.tags) {
+        dataElement += ' data-tags="' + panoTags.join(',') + '"';
+    }
+    dataElement += '></div>';
+
+    // div-info
+    let info
+        = '<div '
+        + ' class="gallery__item__info"'
+        + '>';
+    info += pano.name + '<br>';
+    if (date) {
+        info += date.getDay() + '.' + date.getMonth() + '.' + date.getFullYear();
+    }
+    info += '</div>';
+
+    // div-item
+    let divElement
+        = '<div id="pano-' + index + '"'
+        + ' class="gallery__item"'
+        + '>'
+        + dataElement
+        + imgWrapper
+        + info
+        + '</div>';
+
+    return divElement;
+}
+
 /**
  * json -> tags map[<tagname> -> count]
  * @param data panos (json)
@@ -73,48 +138,7 @@ gallery.addPanos = function (data) {
                 }
             }
         }
-
-        let imgElement
-            = '<img'
-            + ' class="preview"'
-            + ' src="/api/panos/' + pano.id + '/preview"'
-            + ' alt="' + pano.name + '"'
-            + '>';
-
-        let linkElement
-            = '<a href="#">'
-            + imgElement
-            + '</a>';
-
-        let dataElement
-            = '<div'
-            + ' class="gallery__item__data"'
-            + ' data-name="' + pano.name + '"'
-            + ' data-id="' + pano.id + '"'
-            + ' data-pano-xml="/static/panos/' + pano.path + "/" + pano.panoFile + '"';
-        if (date) {
-            dataElement += ' data-created-timestamp="' + date.valueOf() + '"';
-            dataElement += ' data-created-date="' + date.toISOString() + '"';
-            dataElement += ' data-created-year="' + date.getFullYear() + '"';
-            dataElement += ' data-created-month="' + date.getMonth() + '"';
-            dataElement += ' data-created-day="' + date.getDay() + '"';
-        } else {
-            dataElement += ' data-created-year="-666"'
-        }
-        if (pano.meta.tags) {
-            dataElement += ' data-tags="' + panoTags.join(',') + '"';
-        }
-        dataElement += '></div>';
-
-        let divElement
-            = '<div id="pano-' + index + '"'
-            + ' class="gallery__item"'
-            + '>'
-            + dataElement
-            + linkElement
-            + '</div>';
-
-        $g.append(divElement);
+        $g.append(gallery.createPanoElement(index, pano, date, panoTags));
     });
 
     return {
@@ -151,12 +175,12 @@ gallery.addSortButtonsForDate = function () {
             $s.find('.is-active').removeClass('is-active');
             $(this).addClass('is-active');
             let sortValue = $(this).attr('data-sort-by');
-                console.log("SORT-DATE", sortValue)
-                if (sortValue === '*') {
-                    gallery.$gallery.isotope({sortBy: 'original-order'});
-                } else {
-                    gallery.$gallery.isotope({sortBy: sortValue});
-                }
+            console.log("SORT-DATE", sortValue)
+            if (sortValue === '*') {
+                gallery.$gallery.isotope({sortBy: 'original-order'});
+            } else {
+                gallery.$gallery.isotope({sortBy: sortValue});
+            }
         });
     });
 };

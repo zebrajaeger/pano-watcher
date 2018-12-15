@@ -1,7 +1,7 @@
 .gallery {
   margin: 20px;
   padding: 20px;
-  display:flex;
+  display: flex;
 
   &__control {
     height: auto;
@@ -48,28 +48,35 @@
   }
 
   &__item {
-    height: 100px;
+    height: 150px;
     width: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 
-    background-color: #AAA;
+    background-color: #EEE;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
     margin: 10px;
 
     &__data {
-      display:none;
+      display: none;
     }
 
-    a {
-      display: flex;
+    &__preview {
+      width: 100px;
+      height: 100px;
+      background-color: #AAA;
 
-      .preview {
+      &__link {
+        display: flex;
+      }
+
+      &__image {
         max-height: 100px;
         max-width: 100px;
         margin: auto;
       }
+    }
+
+    &__info {
+      padding: 5px;
     }
   }
 }

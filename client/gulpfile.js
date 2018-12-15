@@ -220,10 +220,10 @@ g.task('vendor-js', function () {
 
 //<editor-fold desc="TASKs(DEVELOP)">
 g.task('bs-reload', function (cb) {
-
     p.bs.reload();
     cb();
 });
+
 g.task('watch', function () {
     let options = {
         port: 3330,
