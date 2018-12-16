@@ -5,7 +5,7 @@
   "license": "LGPLv3",
   "scripts": {
     "server-start": "forever start src/index.js",
-    "server-stop": "forever stop",
+    "server-stop": "forever stop index.js",
     "develop": "nodemon src/index.js",
     "i": "yarn install"
   },
