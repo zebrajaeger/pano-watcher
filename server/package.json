@@ -4,7 +4,8 @@
   "main": "src/index.js",
   "license": "LGPLv3",
   "scripts": {
-    "server": "yarn install & forever start src/index.js",
+    "server-start": "forever start src/index.js",
+    "server-stop": "forever stop",
     "develop": "nodemon src/index.js",
     "i": "yarn install"
   },
