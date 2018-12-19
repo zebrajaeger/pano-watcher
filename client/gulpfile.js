@@ -23,7 +23,6 @@ p.mode = require('gulp-mode')({
 p.rename = require('gulp-rename');
 p.plumber = require('gulp-plumber');
 p.runSequence = require('run-sequence');
-p.sequence = require('gulp-sequence');
 p.sourcemaps = require('gulp-sourcemaps');
 
 // image
@@ -57,17 +56,6 @@ let c = {
     image: {
         widths: [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
     }
-};
-//</editor-fold>
-
-//<editor-fold desc="TASKS-COLLECTIONS)">
-let t = {
-    cleanAll: ['clean'],
-    buildAll: ['asset', 'image', 'html', 'app-css', 'vendor-css', 'app-js', 'vendor-js'],
-    buildHtml: ['app-css', 'vendor-css'],
-    buildCss: ['app-css', 'vendor-css'],
-    buildJs: ['app-js', 'vendor-js'],
-    develop: ['watch']
 };
 //</editor-fold>
 
@@ -224,7 +212,7 @@ g.task('bs-reload', function (cb) {
     cb();
 });
 
-g.task('watch', function () {
+g.task('develop', function () {
     let options = {
         port: 3330,
         ui: {
@@ -274,8 +262,19 @@ g.task('watch', function () {
 });
 //</editor-fold>
 
+//<editor-fold desc="TASKS-COLLECTIONS)">
+let t = {
+    cleanAll: g.parallel(['clean']),
+    buildAll: g.parallel(['asset', 'image', 'html', 'app-css', 'vendor-css', 'app-js', 'vendor-js']),
+    buildHtml: g.parallel(['app-css', 'vendor-css']),
+    buildCss: g.parallel(['app-css', 'vendor-css']),
+    buildJs: g.parallel(['app-js', 'vendor-js']),
+    develop: g.parallel(['develop'])
+};
+//</editor-fold>
+
 //<editor-fold desc="STANDARD-TASKs">
-g.task('develop', p.sequence(t.cleanAll, t.buildAll, t.develop));
-g.task('default', p.sequence(t.cleanAll, t.buildAll));
+g.task('develop', g.series([t.cleanAll, t.buildAll, t.develop]));
+g.task('default', g.series([t.cleanAll, t.buildAll]));
 //</editor-fold>
 //</editor-fold>

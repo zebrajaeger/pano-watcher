@@ -24,7 +24,6 @@
     "node-sass": "latest",
     "gulp-scale-images": "latest",
     "gulp-scss-lint": "latest",
-    "gulp-sequence": "latest",
     "gulp-sass": "latest",
     "gulp-sourcemaps": "latest",
     "gulp-uglify-es": "latest",
