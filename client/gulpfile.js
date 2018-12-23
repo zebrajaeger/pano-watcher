@@ -26,7 +26,8 @@ p.runSequence = require('run-sequence');
 p.sourcemaps = require('gulp-sourcemaps');
 
 // image
-p.scaleImages = require('gulp-scale-images')
+p.scaleImages = require('@zebrajaeger/gulp-scale-images');
+p.scaleImagesResize = require('@zebrajaeger/gulp-scale-images-resize-jimp');
 
 // css
 p.cleanCss = require('gulp-clean-css');
@@ -97,7 +98,7 @@ g.task('image', function () {
     return g
         .src('image/*.{jpeg,jpg,png,gif}')
         .pipe(p.flatMap(multibleVariantsPerFile))
-        .pipe(p.scaleImages(computeFileName))
+        .pipe(p.scaleImages(p.scaleImagesResize, computeFileName))
         .pipe(g.dest('build/img'));
 });
 //</editor-fold>
